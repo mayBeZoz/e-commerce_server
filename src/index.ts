@@ -28,7 +28,7 @@ app.use(router)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.log(err)
     res.status(500).json({
-        message: "Internal Server Error",
+        message: "Internal Server Error, Please try Again",
         error: err,
         status:ResponseStatus.ERROR,
         data:null

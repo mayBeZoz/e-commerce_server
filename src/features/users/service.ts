@@ -34,6 +34,7 @@ export const getUsers = async function (page:number,limit:number,query:string):P
     
     const filteredUsers = await UserModel
     .find(queryObj)
+    .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
     .select("-password -__v -verifyUserOTP -resetPasswordOTP")

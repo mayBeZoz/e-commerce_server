@@ -1,19 +1,14 @@
 import { ResponseStatus } from "../../core/utils/constants";
 import controllerHandler from "../../core/utils/controllerHandler";
-import { findManyByIds } from "../products/service";
 import { findUserById } from "../users/service";
-import { TCreateOrderSchema, TDeleteOrderParamsSchema, TGetOrderParamsSchema, TGetOrdersQuerySchema, TSubmitOrderAsDeliveredSchema } from "./schema";
-import { createOrder, createOrderIndex, deletedOrderById, getOrderById, getOrders } from "./service";
+import { TCreateOrderSchema, TDeleteOrderParamsSchema, TGetOrderParamsSchema, TGetOrdersQuerySchema, TGetUserOrdersParamsSchema, TGetUserOrdersQuerySchema } from "./schema";
+import { createOrder, deletedOrderById, getOrderById, getOrders, getUserOrders } from "./service";
 
 export class OrdersController {
     static createOrder = controllerHandler<{},{},TCreateOrderSchema>(
         async (req,res,next) => {
             const {address,city,country,payment,productsIds,userId} = req.body
-            const products = (await findManyByIds(productsIds))
-            const total = products.reduce((sum, product) => {
-                const discountedPrice = product.price * (1 - product.discount / 100);
-                return sum + discountedPrice;
-            }, 0);
+            
               
             const user = await findUserById(userId)
 
@@ -26,19 +21,13 @@ export class OrdersController {
                 })
             }
 
-            const orderDate = new Date().toLocaleDateString()
-            const orderName = `order #${(await createOrderIndex())}`
-
             const order = await createOrder({
-                products:products.map(curr => curr._id),
-                user:user._id,
-                name:orderName,
-                date:orderDate,
                 address,
                 city,
                 country,
                 payment,
-                total
+                productsIds,
+                userId
             })
 
             return res.status(201).json({
@@ -51,22 +40,47 @@ export class OrdersController {
         }
     )
 
-    static submitOrderAsDelivered = controllerHandler<TSubmitOrderAsDeliveredSchema,{}>(
-        async (req,res,next) => {
-            const id = req.params.id
-            
-        }
-    )
+
 
     // static getOrdersCount = controllerHandler<>
 
+   
+
     static getOrders = controllerHandler<{},{},{},TGetOrdersQuerySchema>(
         async (req,res,next) => {
-            const { search = '', page = '1', limit = '10' } = req.query || {}
+            const { search = '', page = '1',delivered, limit = '10' } = req.query || {}
+            let isDelivered 
+
             const parsedPages = parseInt(page)
             const parsedLimit = parseInt(limit)
-            
-            const ordersResult = await getOrders(search,parsedPages,parsedLimit)
+            const ordersResult = await getOrders(search,parsedPages,parsedLimit,{isDelivered})
+
+            return res.status(200).json({
+                data:ordersResult,
+                error:null,
+                message:'got orders successfully',
+                status:ResponseStatus.SUCCESS
+            })
+        }
+    )
+
+    static getUserOrders = controllerHandler<TGetUserOrdersParamsSchema,{},{},TGetUserOrdersQuerySchema>(
+        async (req,res,next) => {
+            const userId = req.params.id
+            const { search = '', page = '1',delivered, limit = '10' } = req.query || {}
+
+            const parsedPages = parseInt(page)
+            const parsedLimit = parseInt(limit)
+
+            const ordersResult = await getUserOrders(
+                userId,
+                search,
+                parsedPages,
+                parsedLimit,
+                {
+                    isDelivered:!!delivered
+                }
+            )
 
             return res.status(200).json({
                 data:ordersResult,
@@ -98,11 +112,19 @@ export class OrdersController {
 
             const order = await getOrderById(id)
 
-            return res.status(200).json({
-                data:order,
+            if (order) {
+                return res.status(200).json({
+                    data:order,
+                    error:null,
+                    status:ResponseStatus.SUCCESS,
+                    message:"got order by id successfully"
+                })
+            }
+            return res.status(404).json({
+                data:null,
                 error:null,
-                status:ResponseStatus.SUCCESS,
-                message:"got order by id successfully"
+                status:ResponseStatus.FAILED,
+                message:"order with this id is not found"
             })
         }
     )

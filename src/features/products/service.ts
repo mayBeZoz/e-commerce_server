@@ -1,3 +1,4 @@
+import { ObjectId } from "mongoose";
 import { IProduct, ProductModel } from "./model";
 import { TCreateProductSchemaPayload, TUpdateProductSchemaPayload } from "./shcema";
 
@@ -26,7 +27,7 @@ export const deleteProductById = (id:string) => {
     return ProductModel.findByIdAndDelete(id).populate("category")
 }
 
-export const findManyByIds = (ids:string[]) => {
+export const findManyProductsByIds = (ids:string[]) => {
     return ProductModel.find({
         _id: { $in: ids }
     })
@@ -51,7 +52,8 @@ export const getProducts = async (search:string,page:number,limit:number):Promis
     const totalPages = Math.ceil(totalProducts / limit)
 
     const products = await ProductModel
-    .find(queryObj) 
+    .find(queryObj)
+    .sort({ createdAt: -1 }) 
     .skip(skip)
     .limit(limit)
     .populate("category")

@@ -16,13 +16,13 @@ const orderIndexSchema = new Schema<IOrderIndex>({
 export const OrderIndexModel = model("OrderIndex",orderIndexSchema)
 
 
-export interface IOrder {
+export interface IOrder extends Document {
     total:          number,
     date:           string,
     isDelivered:    boolean,
     products:       ObjectId[],
     user:           ObjectId,
-    name:          string,
+    name:           string,
     address:        string,
     city:           string,
     country:        string,
@@ -44,12 +44,21 @@ const orderSchema = new Schema<IOrder>({
     },
     products:{
         required:true,
-        type:[Types.ObjectId],
-        ref:"Product"
+        type:[{
+            product:{
+                type:[Schema.Types.ObjectId],
+                ref:"Product",
+                required:true
+            },
+            quantity:{
+                type:Number,        
+                required:true
+            }
+        }]
     },
     user:{
         required:true,
-        type:Types.ObjectId,
+        type:Schema.Types.ObjectId,
         ref:"User"
     },
     name:{

@@ -14,8 +14,8 @@ export const createProductSchema = z.object({
             required_error:'product price is required'
         }),
     
-        quantity:z.number({
-            required_error:'product quantity is required'
+        amount:z.number({
+            required_error:'product amount is required'
         }).min(0,'product quantity cannot be less than 0'),
     
         variants:z.array(
@@ -52,7 +52,7 @@ export const updateProductSchema = z.object({
             required_error:'product price is required'
         }).optional(),
     
-        quantity:z.number({
+        amount:z.number({
             required_error:'product quantity is required'
         }).min(0,'product quantity cannot be less than 0').optional(),
     
