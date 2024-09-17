@@ -8,7 +8,7 @@ export const createProduct = (payload:TCreateProductSchemaPayload) => {
 
 
 export const findProductById = (id:String) => {
-    return ProductModel.findById(id).populate("category")
+    return ProductModel.findById(id)
 
 }
 
@@ -18,13 +18,13 @@ export const updateProductById = (id:string,payload:TUpdateProductSchemaPayload)
         {_id:id},
         {$set:payload},
         {new:true}
-    ).populate("category")
+    )
 
 }
 
 
 export const deleteProductById = (id:string) => {
-    return ProductModel.findByIdAndDelete(id).populate("category")
+    return ProductModel.findByIdAndDelete(id)
 }
 
 export const findManyProductsByIds = (ids:string[]) => {
@@ -56,7 +56,6 @@ export const getProducts = async (search:string,page:number,limit:number):Promis
     .sort({ createdAt: -1 }) 
     .skip(skip)
     .limit(limit)
-    .populate("category")
 
     return {
         products,

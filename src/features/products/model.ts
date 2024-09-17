@@ -9,7 +9,7 @@ export interface IProduct extends Document {
     variants:       {name:string,values:string[]}[],
     amount:         number,
     discount:       number,
-    category:       ObjectId
+    // category:       ObjectId
 }
 
 
@@ -52,10 +52,10 @@ const productSchema = new Schema<IProduct>({
         default:0,
         type:Number
     },
-    category:{
-        type:Types.ObjectId,
-        required:true
-    }
+    // category:{
+    //     type:Types.ObjectId||null,
+    //     required:true
+    // }
 })
 
 export const ProductModel = model<IProduct>("Product",productSchema)

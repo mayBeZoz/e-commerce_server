@@ -16,7 +16,7 @@ export const addProductToCartSchema = z.object({
 
 export const removeProductFromCartSchema = z.object({
     body:z.object({
-        product:z.string({
+        productId:z.string({
             required_error:"product id is required"
         })
     }),
@@ -28,12 +28,13 @@ export const removeProductFromCartSchema = z.object({
 }) 
 
 
-export const incProductQuantitySchema = z.object({
+
+export const changeProductQuantitySchema = z.object({
     body:z.object({
         quantity:z.number({
             required_error:"product quantity is required"
-        }).min(1).default(1).optional(),
-        product:z.string({
+        }).min(1).default(1),
+        productId:z.string({
             required_error:"product id is required"
         })
     }),
@@ -44,23 +45,17 @@ export const incProductQuantitySchema = z.object({
     })
 })
 
-
-export const decProductQuantitySchema = z.object({
-    body:z.object({
-        quantity:z.number({
-            required_error:"product quantity is required"
-        }).min(1),
-        product:z.string({
-            required_error:"product id is required"
-        })
-    }),
+export const getUserCartSchema = z.object({
     params:z.object({
         userId:z.string({
             required_error:"user id is required"
         }),
+    }),
+    query:z.object({
+        limit:z.string().optional(),
+        page:z.string().optional(),
     })
 })
-
 
 export const clearCartSchema = z.object({
     params:z.object({
@@ -74,13 +69,12 @@ export const clearCartSchema = z.object({
 export type TAddProductToCartPayload = z.infer<typeof addProductToCartSchema>['body']
 export type TAddProductToCartParams = z.infer<typeof addProductToCartSchema>['params']
 
-export type TIncProductQuantityPayload = z.infer<typeof incProductQuantitySchema>['body']
-export type TIncProductQuantityParams = z.infer<typeof incProductQuantitySchema>['params']
+export type TChangeProductQuantityPayload = z.infer<typeof changeProductQuantitySchema>['body']
+export type TChangeProductQuantityParams = z.infer<typeof changeProductQuantitySchema>['params']
 
-export type TDecProductQuantityPayload = z.infer<typeof decProductQuantitySchema>['body']
-export type TDecProductQuantityParams = z.infer<typeof decProductQuantitySchema>['params']
+export type TRemoveProductFromCartPayload = z.infer<typeof removeProductFromCartSchema>['body']
+export type TRemoveProductFromCartParams = z.infer<typeof removeProductFromCartSchema>['params']
 
-export type TRemoveProductQuantityPayload = z.infer<typeof removeProductFromCartSchema>['body']
-export type TRemoveProductQuantityParams = z.infer<typeof removeProductFromCartSchema>['params']
-
+export type TGetUserCartParams = z.infer<typeof getUserCartSchema>['params']
+export type TGetUserCartQuery = z.infer<typeof getUserCartSchema>['query']
 export type TClearCartParams = z.infer<typeof clearCartSchema>['params']
