@@ -7,7 +7,7 @@ import { createOrder, deletedOrderById, getOrderById, getOrders, getUserOrders }
 export class OrdersController {
     static createOrder = controllerHandler<{},{},TCreateOrderSchema>(
         async (req,res,next) => {
-            const {address,city,country,payment,productsIds,userId} = req.body
+            const {address,city,country,payment,userId} = req.body
             
               
             const user = await findUserById(userId)
@@ -26,7 +26,6 @@ export class OrdersController {
                 city,
                 country,
                 payment,
-                productsIds,
                 userId
             })
 
@@ -42,18 +41,16 @@ export class OrdersController {
 
 
 
-    // static getOrdersCount = controllerHandler<>
 
    
 
-    static getOrders = controllerHandler<{},{},{},TGetOrdersQuerySchema>(
+    static getUnDeliveredOrders = controllerHandler<{},{},{},TGetOrdersQuerySchema>(
         async (req,res,next) => {
-            const { search = '', page = '1',delivered, limit = '10' } = req.query || {}
-            let isDelivered 
+            const { search = '', page = '1', limit = '10' } = req.query || {}
 
             const parsedPages = parseInt(page)
             const parsedLimit = parseInt(limit)
-            const ordersResult = await getOrders(search,parsedPages,parsedLimit,{isDelivered})
+            const ordersResult = await getOrders(search,parsedPages,parsedLimit,{isDelivered:false})
 
             return res.status(200).json({
                 data:ordersResult,
@@ -64,10 +61,30 @@ export class OrdersController {
         }
     )
 
-    static getUserOrders = controllerHandler<TGetUserOrdersParamsSchema,{},{},TGetUserOrdersQuerySchema>(
+       
+
+    static getDeliveredOrders = controllerHandler<{},{},{},TGetOrdersQuerySchema>(
+        async (req,res,next) => {
+            const { search = '', page = '1', limit = '10' } = req.query || {}
+
+            const parsedPages = parseInt(page)
+            const parsedLimit = parseInt(limit)
+            const ordersResult = await getOrders(search,parsedPages,parsedLimit,{isDelivered:true})
+
+            return res.status(200).json({
+                data:ordersResult,
+                error:null,
+                message:'got orders successfully',
+                status:ResponseStatus.SUCCESS
+            })
+        }
+    )
+
+
+    static getUserUnDeliveredOrders = controllerHandler<TGetUserOrdersParamsSchema,{},{},TGetUserOrdersQuerySchema>(
         async (req,res,next) => {
             const userId = req.params.id
-            const { search = '', page = '1',delivered, limit = '10' } = req.query || {}
+            const { search = '', page = '1', limit = '10' } = req.query || {}
 
             const parsedPages = parseInt(page)
             const parsedLimit = parseInt(limit)
@@ -78,7 +95,35 @@ export class OrdersController {
                 parsedPages,
                 parsedLimit,
                 {
-                    isDelivered:!!delivered
+                    isDelivered:false
+                }
+            )
+
+            return res.status(200).json({
+                data:ordersResult,
+                error:null,
+                message:'got orders successfully',
+                status:ResponseStatus.SUCCESS
+            })
+        }
+    )
+
+
+    static getUserDeliveredOrders = controllerHandler<TGetUserOrdersParamsSchema,{},{},TGetUserOrdersQuerySchema>(
+        async (req,res,next) => {
+            const userId = req.params.id
+            const { search = '', page = '1', limit = '10' } = req.query || {}
+
+            const parsedPages = parseInt(page)
+            const parsedLimit = parseInt(limit)
+
+            const ordersResult = await getUserOrders(
+                userId,
+                search,
+                parsedPages,
+                parsedLimit,
+                {
+                    isDelivered:true
                 }
             )
 

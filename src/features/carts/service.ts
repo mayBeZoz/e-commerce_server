@@ -99,7 +99,6 @@ export const removeProductFromCart = async (userId:string,productId:string) => {
 
 export const getUserCart = async (page: number, limit: number, userId: string) => {
     const userCart = await CartModel.findOne({ user: userId }).populate('products.product user').lean();
-
     if (userCart) {
         const totalProducts = userCart.products.length;
         const totalPages = Math.ceil(totalProducts / limit);

@@ -2,6 +2,9 @@ import { z } from "zod";
 
 export const createProductSchema = z.object({
     body:z.object({
+        category:z.string({
+            required_error:'product category is required'
+        }),
         name:z.string({
             required_error:'product name is required'
         }),
@@ -40,21 +43,14 @@ export const createProductSchema = z.object({
 
 export const updateProductSchema = z.object({
     body:z.object({
-        name:z.string({
-            required_error:'product name is required'
-        }).optional(),
+        category:z.string().optional(),
+        name:z.string().optional(),
     
-        description:z.string({
-            required_error:'product description is required'
-        }).optional(),
+        description:z.string().optional(),
     
-        price:z.number({
-            required_error:'product price is required'
-        }).optional(),
+        price:z.number().optional(),
     
-        amount:z.number({
-            required_error:'product quantity is required'
-        }).min(0,'product quantity cannot be less than 0').optional(),
+        amount:z.number().min(0,'product quantity cannot be less than 0').optional(),
     
         variants:z.array(
             z.object({

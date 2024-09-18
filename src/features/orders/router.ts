@@ -13,9 +13,15 @@ router.post(
 )
 
 router.get(
-    '/',
+    '/undelivered',
     validateRequest(getOrdersSchema),
-    OrdersController.getOrders 
+    OrdersController.getUnDeliveredOrders 
+)
+
+router.get(
+    '/delivered',
+    validateRequest(getOrdersSchema),
+    OrdersController.getDeliveredOrders 
 )
 
 
@@ -33,9 +39,14 @@ router.get(
 
 
 router.get(
-    '/user-orders/:id',
+    '/user-orders/:id/undelivered',
     validateRequest(getUserOrdersSchema),
-    OrdersController.getUserOrders
+    OrdersController.getUserUnDeliveredOrders
+)
+router.get(
+    '/user-orders/:id/delivered',
+    validateRequest(getUserOrdersSchema),
+    OrdersController.getUserDeliveredOrders
 )
 
 

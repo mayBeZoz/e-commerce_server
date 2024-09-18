@@ -1,6 +1,8 @@
 import { QueryOptions } from "mongoose";
 import { IOrder, OrderIndexModel, OrderModel } from "./model";
 import { findManyProductsByIds } from "../products/service";
+import { CartModel } from "../carts/model";
+import { getNowFullDate } from "../../core/utils/getNowFullDate";
 
 type TCreateOrderPayload = {
     address:string,
@@ -8,10 +10,6 @@ type TCreateOrderPayload = {
     country:string,
     payment:string,
     userId:string,
-    productsIds:{
-        productId:string,
-        quantity:number
-    }[]
 }
 
 export const createOrder = async ({
@@ -19,20 +17,37 @@ export const createOrder = async ({
     city,
     country,
     payment,
-    productsIds,
     userId,
 }:TCreateOrderPayload) => {
+    const userCart = await CartModel.findOne({user:userId})
     
-}
-
-export const createOrderIndex = async () => {
     const newIndex = await OrderIndexModel.countDocuments() + 1
-    return await OrderIndexModel.create({
+    const orderIndex = await OrderIndexModel.create({
         index:newIndex
     })
+
+    if (userCart) {
+        const order = await OrderModel.create({
+            address,
+            city,
+            country,
+            payment,
+            total:userCart.total,
+            products:userCart.products,
+            user:userCart.user,
+            name:`order #${orderIndex.index}`,
+            date:getNowFullDate()
+        })
+
+        await CartModel.deleteOne({user:userId})
+        return order
+    }else {
+        throw new Error('user dont have cart to create order')
+    }
 }
 
-export const getLastOrderIndex = () => OrderIndexModel.countDocuments()
+
+
 
 
 export const deletedOrderById = (id:string) => OrderModel.findByIdAndDelete(id).populate("products user")
@@ -74,7 +89,7 @@ export const getOrders = async (
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
-    .populate("products user")
+    .populate("products.product user")
 
     return {
         orders,
@@ -116,10 +131,10 @@ export const getUserOrders = async (
 
     const orders = await OrderModel
     .find(queryObj) 
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1 })        
     .skip(skip)
     .limit(limit)
-    .populate("products user")
+    .populate("products.product user")
 
     return {
         orders,
@@ -128,4 +143,4 @@ export const getUserOrders = async (
     }
 }
 
-export const getOrderById = (id:string) => OrderModel.findById(id).populate("products user")
+export const getOrderById = (id:string) => OrderModel.findById(id).populate("products.product user")

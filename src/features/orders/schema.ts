@@ -2,16 +2,6 @@ import { z, ZodError, ZodIssueCode } from "zod";
 
 export const createOrderSchema = z.object({
     body:z.object({
-        productsIds:z.array(
-            z.object({
-                productId:z.string({
-                    required_error:"product id is required"
-                }),
-                quantity:z.number({
-                    required_error:'product quantity is required'
-                }).min(1,'products quantity cannot be less than 1')
-            })
-        ),
         userId:z.string({
             required_error:"user id is required"
         }),
@@ -53,17 +43,6 @@ export const getOrdersSchema = z.object({
         limit: z.string().optional(),
         page: z.string().optional(),
         search: z.string().optional(),
-        delivered: z.preprocess((val) => {
-            if (val === 'true') return true;
-            if (val === 'false') return false;
-            throw new z.ZodError([
-                {
-                    path: ['delivered'],
-                    message: "Invalid value for 'delivered'. Must be 'true' or 'false'.",
-                    code: z.ZodIssueCode.custom,
-                },
-            ]);
-        }, z.boolean()).optional(), 
     }).optional(),
 });
 
@@ -72,17 +51,6 @@ export const getUserOrdersSchema = z.object({
         limit: z.string().optional(),
         page: z.string().optional(),
         search: z.string().optional(),
-        delivered: z.preprocess((val) => {
-            if (val === 'true') return true;
-            if (val === 'false') return false;
-            throw new z.ZodError([
-                {
-                    path: ['delivered'],
-                    message: "Invalid value for 'delivered'. Must be 'true' or 'false'.",
-                    code: z.ZodIssueCode.custom,
-                },
-            ]);
-        }, z.boolean()).optional(), 
     }).optional(),
     params:z.object({
         id:z.string({
